@@ -1,4 +1,5 @@
 import trello from './trello'
+import { get as dayOfWeek } from 'day-of-week'
 
 export function automaticLoginIfPossible () {
   return dispatch => {
@@ -66,30 +67,84 @@ export function chooseBoard (board) {
 function fetchStats (board) {
   return dispatch => {
     trello.get(`/1/boards/${board.id}/actions`, {
-      fields: 'date',
+      fields: 'date,data',
       memberCreator_fields: 'username',
       limit: 1000,
     })
     .then(actions => {
       var tables = {}
+      var agg, data, columns
 
       // users most active
-      const UMA = {}
+      agg = {}
       actions.forEach(act => {
-        UMA[act.memberCreator.username] = UMA[act.memberCreator.username] || 0
-        UMA[act.memberCreator.username] += 1
+        agg[act.memberCreator.username] = agg[act.memberCreator.username] || 0
+        agg[act.memberCreator.username] += 1
       })
-      var columns = [{header: 'User', property: 'u'}, {header: 'Actions', property: 'a'}]
-      var data = []
-      for (let user in UMA) {
-        let count = UMA[user]
-        data.push({a: count, u: user})
+      columns = [{header: 'User', property: 'l'}, {header: 'Actions', property: 'a'}]
+      data = []
+      for (let key in agg) {
+        let count = agg[key]
+        data.push({a: count, l: key})
       }
-      tables['Users most active'] = {data: data, columns: columns}
+      data.sort((a, b) => b.a - a.a)
+      data = data.slice(0, 15)
+      tables[`Users most active on ${board.name}`] = {data: data, columns: columns}
+      // ~
+
+      // lists most active
+      agg = {}
+      actions.forEach(act => {
+        if (!act.data.list) return
+        agg[act.data.list.name] = agg[act.data.list.name] || 0
+        agg[act.data.list.name] += 1
+      })
+      columns = [{header: 'List', property: 'l'}, {header: 'Actions', property: 'a'}]
+      data = []
+      for (let key in agg) {
+        let count = agg[key]
+        data.push({a: count, l: key})
+      }
+      data.sort((a, b) => b.a - a.a)
+      data = data.slice(0, 10)
+      tables[`Lists most active on ${board.name}`] = {data: data, columns: columns}
+      // ~
+
+      // cards most active
+      agg = {}
+      actions.forEach(act => {
+        if (!act.data.card) return
+        agg[act.data.card.name] = agg[act.data.card.name] || 0
+        agg[act.data.card.name] += 1
+      })
+      columns = [{header: 'Card', property: 'l'}, {header: 'Actions', property: 'a'}]
+      data = []
+      for (let key in agg) {
+        let count = agg[key]
+        data.push({a: count, l: key})
+      }
+      data.sort((a, b) => b.a - a.a)
+      data = data.slice(0, 15)
+      tables[`Cards most active on ${board.name}`] = {data: data, columns: columns}
       // ~
 
       // day of week activity
-      var DOWA = {}
+      const weekDays = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
+      agg = {}
+      actions.forEach(act => {
+        let wdn = dayOfWeek(act.date)
+        agg[wdn] = agg[wdn] || 0
+        agg[wdn] += 1
+      })
+      columns = [{header: 'Weekday', property: 'l'}, {header: 'Actions', property: 'a'}]
+      data = []
+      for (let key in agg) {
+        let count = agg[key]
+        let weekDayStr = weekDays[key]
+        data.push({a: count, l: weekDayStr, day: key})
+      }
+      data.sort((a, b) => a.day - b.day)
+      tables[`Days of week with most activity on ${board.name}`] = {data: data, columns: columns}
       // ~
 
       dispatch({

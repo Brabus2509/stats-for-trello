@@ -25,6 +25,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "day-of-week": "^1.0.4",
     "immupdate": "^0.1.3",
     "react": "^0.14.3",
     "react-dom": "^0.14.3",

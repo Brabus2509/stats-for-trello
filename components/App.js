@@ -22,7 +22,7 @@ class App extends Component {
       return (
         <article>
           <header>
-            <h1>{user.username}, stats for <a href="https://trello.com/b/{{board.id}}" target="_blank">{board.name}</a></h1>
+            <h1>stats for <a href="https://trello.com/b/{{board.id}}" target="_blank">{board.name}</a>:</h1>
           </header>
           <div>
             {Object.keys(tables).map(tableName => {
