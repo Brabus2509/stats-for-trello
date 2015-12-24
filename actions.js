@@ -147,9 +147,12 @@ function fetchStats (board) {
       tables[`Days of week with most activity on ${board.name}`] = {data: data, columns: columns}
       // ~
 
+      let lastActionDate = actions.slice(-1)[0].date.split('T')[0]
+
       dispatch({
         type: 'CRUNCHED_STATS',
-        tables
+        tables,
+        lastActionDate
       })
     })
     .catch(e => dispatch({

@@ -23,7 +23,10 @@ export default function (state, action) {
         'tables': {}
       })
     case 'CRUNCHED_STATS':
-      return immupdate(state, 'tables', action.tables)
+      return immupdate(state, {
+        'tables': action.tables,
+        'lastActionDate': action.lastActionDate
+      })
     default:
       return state
   }

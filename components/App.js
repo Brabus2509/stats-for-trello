@@ -16,13 +16,14 @@ class App extends Component {
 
   render() {
     const { dispatch } = this.props
-    let { user, board, visibleBoards, tables } = this.props
+    let { user, board, visibleBoards, tables, lastActionDate } = this.props
 
     if (user && board && Object.keys(tables).length) {
       return (
         <article>
           <header>
             <h1>stats for <a href="https://trello.com/b/{{board.id}}" target="_blank">{board.name}</a>:</h1>
+            <aside>data since {lastActionDate}</aside>
           </header>
           <div>
             {Object.keys(tables).map(tableName => {
