@@ -19,7 +19,7 @@ export function automaticLoginIfPossible () {
 export function login () {
   return dispatch => {
     trello.auth({
-      name: 'Trello Stats',
+      name: 'Stats for Trello',
       scope: {read: true},
       expiration: 'never'
     })
